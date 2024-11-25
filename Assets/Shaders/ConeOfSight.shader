@@ -91,7 +91,18 @@
 
 					// 3D point reconstruction from depth texture
 					float depth = SAMPLE_DEPTH_TEXTURE_PROJ(_CameraDepthTexture, i.screenUV);
-					depth = Linear01Depth(depth);
+
+					// Orthographic camera depth texture is already linear
+					UNITY_BRANCH
+					if (unity_OrthoParams.w)
+					{					
+						depth = 1.0 - depth;
+					}
+					else
+					{
+						depth = Linear01Depth(depth);
+					}
+
 					float4 vpos = float4(i.ray * depth, 1);
 					float4 wpos = mul(unity_CameraToWorld, vpos);
 

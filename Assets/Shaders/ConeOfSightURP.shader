@@ -101,7 +101,19 @@ Shader "GPUMan/ConeOfSightURP" {
 					i.ray = i.ray * (_ProjectionParams.z / i.ray.z); // farPlane
 
 					// ray impact point reconstruction from depth texture
-					float depth = Linear01Depth(SampleSceneDepth(i.screenUV.xy / i.screenUV.w), _ZBufferParams); // depth
+					float depth = SampleSceneDepth(i.screenUV.xy / i.screenUV.w);
+
+					UNITY_BRANCH
+					// Orthographic camera depth texture is already linear
+					if (unity_OrthoParams.w)
+					{					
+						depth = 1.0 - depth;
+					}
+					else
+					{
+						depth = Linear01Depth(depth, _ZBufferParams);
+					}
+
 					float4 vpos = float4(i.ray * depth, 1);
 					float4 wpos = mul(unity_CameraToWorld, vpos);
 
